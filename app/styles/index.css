@@ -32,6 +32,20 @@ body{
     width: 300px;
     float: left;
 }
+#main .players .sort{
+    margin: 20px 0 0;
+}
+#main .players .sort a{
+    text-decoration: none;
+    font-size: 11px;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #666;
+    margin-right: 15px;
+}
+#main .players .sort a.active{
+    color: #3498db;
+}
 #main .players .stats{
     font-size: 11px;
     color: #666;
@@ -41,7 +55,7 @@ body{
 }
 #main .players ul{
     padding: 0;
-    margin: 30px 0 10px;
+    margin: 10px 0 10px;
     list-style: none;
 }
 #main .players li{
@@ -64,8 +78,8 @@ body{
 #main .teetimes .tee{
     background: #d1d1d1;
     width: 300px;
-    margin: 0 15px 15px 0;
-    float: left;
+    margin: 0 30px 15px 0;
+    float: right;
 }
 #main .teetimes h2{
     text-align: center;
@@ -107,4 +121,9 @@ body{
     color: #777;
     background: 0 none;
   }
+}
+
+.clear{
+    clear: right;
+    height: 0;
 }

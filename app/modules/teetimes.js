@@ -36,6 +36,14 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
       unassigned[randomPlayerID].set("assigned", true);
 
       return unassigned[randomPlayerID];
+    },
+
+    alpha_comparator: function(player) {
+        return player.get("name");
+    },
+
+    handicap_comparator: function(player) {
+        return player.get("handicap");
     }
 
   });
@@ -54,6 +62,8 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
     render: function() {
       this.$el.append(this.template(this.model.toJSON()));
       $(".players ul").append(this.$el);
+
+      this.assignedChange();
     },
 
     assignedChange: function() {
@@ -73,12 +83,13 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
     initialize: function(opts) {
       this.limit = opts.limit;
       this.assignedPlayers = 0;
+      this.$teetimes = opts.$teetimes;
       this.render();
     },
 
     render: function() {
       this.$el.append(this.template);
-      $(".teetimes").append(this.$el);
+      this.$teetimes.append(this.$el);
     },
 
     isFull: function() {
@@ -112,6 +123,7 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
     events: {
       "click .randomise": "pickPlayers",
       "click .reset": "resetPicks",
+      "click .sort a": "sortPlayers"
     },
 
     initialize: function() {
@@ -119,7 +131,7 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
       this.render();
 
       this.players = new Teetimes.Players();
-      this.listenTo(this.players, "reset", this.addPlayers);
+      this.listenTo(this.players, "sort", this.addPlayers);
 
       var players = [ 
         {
@@ -161,12 +173,22 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
         }
       ];
 
+      this.players.comparator = this.players.alpha_comparator;
+
       this.players.reset(players);
+      this.players.sort();
       this.randomise();
     },
 
     render: function() {
-      $("#main").append(this.template);
+      this.$el.append(this.template);
+    },
+
+    sortPlayers: function(ev){
+      this.$el.find(".sort a").removeClass("active");
+      var sort_type = $(ev.currentTarget).addClass("active").data("sort");
+      this.players.comparator = this.players[sort_type+"_comparator"];
+      this.players.sort();
     },
 
     resetPicks: function() {
@@ -180,6 +202,7 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
     },
 
     addPlayers: function(collection) {
+      this.$el.find(".players ul").empty();
       collection.each(_.bind(function(model, index){
         var player_view = new Teetimes.Views.Player({
           model: model
@@ -192,7 +215,8 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
       // Determine how many groups there should be.
       var no_tee_times = Math.floor(this.players.length/3),
           extras = this.players.length%3,
-          limit = 3;
+          limit = 3,
+          $teetimes = $(".teetimes");
 
       for (var i = 0; i < no_tee_times; i++) {
 
@@ -203,7 +227,11 @@ function(app, teetimesTemplate, playerTemplate, teeTemplate) {
           extras--;
         }
 
-        this.teetimes.push(new Teetimes.Views.TeeTime({limit: limit}));
+        this.teetimes.push(new Teetimes.Views.TeeTime({limit: limit, $teetimes: $teetimes}));
+
+        if((i+1)%2 == 0){
+          $teetimes.append("<div class='clear'></div>");
+        }
       };
     },
 
